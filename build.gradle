@@ -1,11 +1,16 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
+apply plugin: 'maven'
 
 sourceCompatibility = 1.5
+
 version = '0.1'
+group = 'org.drpowell'
+def packageName = 'acCLImate'
+
 jar {
     manifest {
-        attributes 'Implementation-Title': 'annoCLImactic', 'Implementation-Version': version
+        attributes 'Implementation-Title': packageName, 'Implementation-Version': version
     }
 }
 
@@ -27,5 +32,36 @@ uploadArchives {
 
 task wrapper(type: Wrapper) {
         gradleVersion = '1.5'
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from 'build/docs/javadoc'
+}
+ 
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+}
+
+artifacts {
+    archives jar
+    archives sourcesJar
+    archives javadocJar
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository (
+                url: 'https://api.bintray.com/maven/' + bintray_username + '/' + packageName + '/' + packageName
+            ) {
+                authentication(
+                    userName: bintray_username,
+                    password: bintray_api_key
+                )
+            }
+        }
+    }
 }
 
